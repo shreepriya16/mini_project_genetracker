@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Bioinfo Sample Tracker</title>
+</head>
+<body>
+  <h1>Sample Tracking System</h1>
+
+  <h2>Insert Sample</h2>
+  <form id="sampleForm">
+    <input type="text" id="sample_id" placeholder="Sample ID" required>
+    <input type="text" id="organism" placeholder="Organism" required>
+    <input type="date" id="collection_date" required>
+    <button type="submit">Add Sample</button>
+  </form>
+
+  <h2>View All Samples</h2>
+  <button onclick="loadSamples()">Refresh</button>
+  <ul id="sampleList"></ul>
+
+  <script>
+    document.getElementById('sampleForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const sample = {
+        sample_id: document.getElementById('sample_id').value,
+        organism: document.getElementById('organism').value,
+        collection_date: document.getElementById('collection_date').value
+      };
+      await fetch('http://localhost:3000/samples', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(sample)
+      });
+      loadSamples();
+    });
+
+    async function loadSamples() {
+      const res = await fetch('http://localhost:3000/samples');
+      const samples = await res.json();
+      const list = document.getElementById('sampleList');
+      list.innerHTML = '';
+      samples.forEach(s => {
+        const li = document.createElement('li');
+        li.textContent = `${s.sample_id} | ${s.organism} | ${s.collection_date}`;
+        list.appendChild(li);
+      });
+    }
+  </script>
+</body>
+</html>
